@@ -65,7 +65,7 @@
                 :schema="groupChatSchema"
             >
                 <chat-category 
-                    :chat-category-name="'Fun!🎉'"
+                    :chat-category-name="'Inbox'"
                     :group-chat-objects="groupChatObjects"
                     :current-chat-object="currentChatObject"
                     @enter-chat="enterChat"
@@ -80,6 +80,20 @@
                 <chat-category 
                     class="muted-category"
                     :chat-category-name="'Ignore 😴'"
+                    :group-chat-objects="groupChatObjects"
+                    :current-chat-object="currentChatObject"
+                    @enter-chat="enterChat"
+                />
+            </graffiti-discover>
+            <hr>
+            <graffiti-discover
+            v-slot="{ objects: groupChatObjects }"
+            :channels="['designftw']"
+            :schema="groupChatSchema"
+            >
+                <chat-category 
+                    class="muted-category"
+                    :chat-category-name="'Handled 🤖'"
                     :group-chat-objects="groupChatObjects"
                     :current-chat-object="currentChatObject"
                     @enter-chat="enterChat"
