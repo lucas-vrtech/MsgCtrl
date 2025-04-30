@@ -3,14 +3,16 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Designftw Chatroom</title>
+        <title>MsgCtrl</title>
         <script type="importmap">
             {
                 "imports": {
                     "vue": "https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.esm-browser.js",
                     "@graffiti-garden/implementation-local": "https://cdn.jsdelivr.net/npm/@graffiti-garden/implementation-local@0.6.4/dist/browser/index.js",
                     "@graffiti-garden/implementation-remote": "https://cdn.jsdelivr.net/npm/@graffiti-garden/implementation-remote@0.6.2/dist/browser/index.js",
-                    "@graffiti-garden/wrapper-vue": "https://cdn.jsdelivr.net/npm/@graffiti-garden/wrapper-vue@0.7.2/dist/browser/plugin.mjs"
+                    "@graffiti-garden/wrapper-vue": "https://cdn.jsdelivr.net/npm/@graffiti-garden/wrapper-vue@0.7.2/dist/browser/plugin.mjs",
+                    "./chat-category.js": "./chat-category.js",
+                    "./schema.js": "./schema.js"
                 }
             }
         </script>
@@ -18,32 +20,125 @@
     </head>
     <body>
         <div id="app">
-            <h1>DesignFTW Chatroom</h1>
-            <button v-if="!$graffitiSession.value" @click="$graffiti.login()">
-                Log In
-            </button>
-            <template v-else>
-                <button @click="$graffiti.logout($graffitiSession.value)">
-                    Log Out
-                </button>
+            <header>
+                <div class="header-content">
+                    <h1>MsgCtrl</h1>
+                    <p class="slogan">A Mission Control for your messages</p>
+                </div>
+                <nav>
+                    <button v-if="!$graffitiSession.value" @click="$graffiti.login()">
+                        Log In
+                    </button>
+                <template v-else>
+                    <button @click="$graffiti.logout($graffitiSession.value)">
+                            Log Out
+                        </button>
+                    </template>
+                </nav>
+            </header>
+            <form @submit.prevent="createChannel($graffitiSession.value)">
+                <p> Create Channel
+                <input
+                    type="text"
+                    v-model="myNewChatName"
+                    placeholder="MyChat"
+                />
+                <input type="submit" value="Create" :disabled="!myNewChatName || isLoading" />
+            </form>
+
+            <graffiti-discover
+                v-slot="{ objects: groupChatObjects }"
+                :channels="['designftw']"
+                :schema="groupChatSchema"
+            >
+                <chat-category 
+                    :chat-category-name="'Critical ⚠'"
+                    :group-chat-objects="groupChatObjects"
+                    :current-chat-object="currentChatObject"
+                    @enter-chat="enterChat"
+                />
+            </graffiti-discover>
+
+            <graffiti-discover
+                v-slot="{ objects: groupChatObjects }"
+                :channels="['designftw']"
+                :schema="groupChatSchema"
+            >
+                <chat-category 
+                    :chat-category-name="'Fun!'"
+                    :group-chat-objects="groupChatObjects"
+                    :current-chat-object="currentChatObject"
+                    @enter-chat="enterChat"
+                />
+            </graffiti-discover>
+
+            <section v-if="currentChatObject">
+
+                <h2>Messages</h2>
+                <p>
+                    Current Chat: 
+                    <span v-if="!renameChat">{{currentChatObject.name}}
+                        <button @click="renameChat = true; newChatName = currentChatObject.name">Rename</button>
+                    </span>
+                    <span v-else>
+                        <input type="text" v-model="newChatName" />
+                        <button @click="updateChatName()">Update</button>
+                    </span>
+                </p>
                 <form @submit.prevent="sendMessage($graffitiSession.value)">
                     <input
                         type="text"
                         v-model="myMessage"
                         placeholder="Message"
                     />
-                    <input type="submit" value="Send" />
+                    <input type="submit" value="Send" :disabled="!myMessage || isLoading" />
                 </form>
-            </template>
+    
 
-            <h2>Messages</h2>
+                <graffiti-discover
+                    v-slot="{ objects: messageObjects }"
+                    :channels="[currentChatObject.channel]"
+                    :schema="{
+                        properties: {
+                            value: {
+                                required: ['content', 'published'],
+                                properties: {
+                                    content: {
+                                        type: 'string'
+                                    },
+                                    published: {
+                                        type: 'number'
+                                    }
+                                }
+                            }
+                        }
+                    }"
+                >
+                    <button @click="exitChat()">Exit Chat</button>
+                    <ul>
+                        <li v-for="message in messageObjects" :key="message.value.published">
+                            <div class="message-content">
+                                <span v-if="currentlyEditingMessage === message">
+                                    <input type="text" v-model="message.value.content" />
+                                    <button @click="editMessage(message)">Update</button>
+                                </span>
+                                <span v-else>
+                                    {{ message.value.content }}
+                                    <details>
+                                        <summary>...</summary>
+                                        <button @click="currentlyEditingMessage = message">Edit</button>
+                                        <button @click="deleteMessage(message)">Delete</button>
+                                    </details>
+                                </span>
+                            </div>
+                        </li>
+                    </ul>
+                </graffiti-discover>
+            </section>
 
-            <button @click="getMessages()">Refresh messages</button>
-            <ul>
-                <li v-for="object of messageObjects">
-                    {{ object.value.content }}
-                </li>
-            </ul>
+            <div v-if="isLoading">
+                <img src="img/loader.svg" class="loader" alt="Loading" />
+            </div>
         </div>
 
         <script src="index.js" type="module"></script>

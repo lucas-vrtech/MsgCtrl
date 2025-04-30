@@ -5,6 +5,22 @@
         sans-serif;
 }
 
+h1{
+    text-align: center;
+}
+
+nav{
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+header{
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
 button,
 input {
     margin: 3px;
@@ -18,4 +34,34 @@ input[type="text"] {
     color: gray;
     font-style: italic;
     text-decoration: line-through;
+}
+
+.loader {
+    width: 20px;
+    height: 20px;
+}
+
+.message-content {
+    display: inline-block;
+}
+
+.message-content details {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.header-content {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.slogan {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+#app {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
