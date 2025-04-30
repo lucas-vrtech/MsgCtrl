@@ -65,3 +65,32 @@ input[type="text"] {
     margin: 0 auto;
     padding: 0 20px;
 }
+
+.muted-category {
+    opacity: 0.6;
+    color: #666;
+}
+
+.muted-category h2 {
+    font-size: 1.1em;
+    font-weight: normal;
+    margin: 0.5em 0;
+}
+
+.muted-category ul {
+    font-size: 0.9em;
+    margin: 0.5em 0;
+    padding-left: 1em;
+}
+
+.muted-category li {
+    margin: 0.3em 0;
+}
+
+.muted-category button {
+    opacity: 0.8;
+    font-size: 0.9em;
+    padding: 2px 8px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+}

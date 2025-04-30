@@ -52,20 +52,34 @@
                 :schema="groupChatSchema"
             >
                 <chat-category 
-                    :chat-category-name="'Critical ⚠'"
+                    :chat-category-name="'Critical ⚠️'"
                     :group-chat-objects="groupChatObjects"
                     :current-chat-object="currentChatObject"
                     @enter-chat="enterChat"
                 />
             </graffiti-discover>
-
+            <hr>
             <graffiti-discover
                 v-slot="{ objects: groupChatObjects }"
                 :channels="['designftw']"
                 :schema="groupChatSchema"
             >
                 <chat-category 
-                    :chat-category-name="'Fun!'"
+                    :chat-category-name="'Fun!🎉'"
+                    :group-chat-objects="groupChatObjects"
+                    :current-chat-object="currentChatObject"
+                    @enter-chat="enterChat"
+                />
+            </graffiti-discover>
+            <hr>
+            <graffiti-discover
+            v-slot="{ objects: groupChatObjects }"
+            :channels="['designftw']"
+            :schema="groupChatSchema"
+            >
+                <chat-category 
+                    class="muted-category"
+                    :chat-category-name="'Ignore 😴'"
                     :group-chat-objects="groupChatObjects"
                     :current-chat-object="currentChatObject"
                     @enter-chat="enterChat"

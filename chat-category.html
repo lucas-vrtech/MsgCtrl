@@ -1,12 +1,14 @@
-<h2>{{ chatCategoryName }}</h2>
-<ul>
-    <li v-for="chat in groupChatObjects" :key="chat.value.object.channel">
-        {{ chat.value.object.name }}
-        <button 
-            @click="$emit('enter-chat', chat)"
-            :disabled="currentChatObject && currentChatObject.channel === chat.value.object.channel"
-        >
-            Enter
-        </button>
-    </li>
-</ul> 
+<div>
+    <h2>{{ chatCategoryName }}</h2>
+    <ul>
+        <li v-for="chat in groupChatObjects" :key="chat.value.object.channel">
+            {{ chat.value.object.name }}
+            <button 
+                @click="$emit('enter-chat', chat)"
+                :disabled="currentChatObject && currentChatObject.channel === chat.value.object.channel"
+            >
+                Enter
+            </button>
+        </li>
+    </ul>
+</div> 
