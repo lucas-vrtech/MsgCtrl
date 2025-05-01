@@ -43,6 +43,12 @@
                     v-model="myNewChatName"
                     placeholder="MyChat"
                 />
+                <select v-model="myNewChatCategory">
+                    <option value="Critical ⚠️">Critical ⚠️</option>
+                    <option value="Inbox">Inbox</option>
+                    <option value="Ignore 😴">Ignore 😴</option>
+                    <option value="Handled 🤖">Handled 🤖</option>
+                </select>
                 <input type="submit" value="Create" :disabled="!myNewChatName || isLoading" />
             </form>
 
@@ -53,7 +59,7 @@
             >
                 <chat-category 
                     :chat-category-name="'Critical ⚠️'"
-                    :group-chat-objects="groupChatObjects"
+                    :group-chat-objects="groupChatObjects.filter(obj => obj.value.object.category === 'Critical ⚠️')"
                     :current-chat-object="currentChatObject"
                     @enter-chat="enterChat"
                 />
@@ -66,7 +72,7 @@
             >
                 <chat-category 
                     :chat-category-name="'Inbox'"
-                    :group-chat-objects="groupChatObjects"
+                    :group-chat-objects="groupChatObjects.filter(obj => !obj.value.object.category || obj.value.object.category === 'Inbox')"
                     :current-chat-object="currentChatObject"
                     @enter-chat="enterChat"
                 />
@@ -80,7 +86,7 @@
                 <chat-category 
                     class="muted-category"
                     :chat-category-name="'Ignore 😴'"
-                    :group-chat-objects="groupChatObjects"
+                    :group-chat-objects="groupChatObjects.filter(obj => obj.value.object.category === 'Ignore 😴')"
                     :current-chat-object="currentChatObject"
                     @enter-chat="enterChat"
                 />
@@ -94,7 +100,7 @@
                 <chat-category 
                     class="muted-category"
                     :chat-category-name="'Handled 🤖'"
-                    :group-chat-objects="groupChatObjects"
+                    :group-chat-objects="groupChatObjects.filter(obj => obj.value.object.category === 'Handled 🤖')"
                     :current-chat-object="currentChatObject"
                     @enter-chat="enterChat"
                 />

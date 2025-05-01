@@ -15,6 +15,7 @@ createApp({
     return {
       myMessage: "",
       myNewChatName: "",
+      myNewChatCategory: "Inbox",
       currentChat: null,
       sentMessageObjects: [],
       messageObjects: [],
@@ -58,8 +59,9 @@ createApp({
             activity: 'Create',
             object: {
               type: 'Group Chat',
-              name: this.myNewChatName, // Make this editable
-              channel: crypto.randomUUID(), // This creates a random string
+              name: this.myNewChatName,
+              channel: crypto.randomUUID(),
+              category: this.myNewChatCategory
             }
            },
            channels,

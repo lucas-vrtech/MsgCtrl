@@ -18,6 +18,11 @@ export const groupChatSchema = {
                     },
                     channel: {
                         type: 'string'
+                    },
+                    category: {
+                        type: 'string',
+                        enum: ['Critical ⚠️', 'Inbox', 'Ignore 😴', 'Handled 🤖'],
+                        default: 'Inbox'
                     }
                 }
             }
