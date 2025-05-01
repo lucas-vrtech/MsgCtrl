@@ -11,7 +11,8 @@
             @dragstart="handleDragStart($event, chat)"
             @dragend="handleDragEnd"
         >
-            {{ chat.value.object.name }}
+            <span class="grip-handle">⋮⋮⋮</span>
+            <span class="chat-name">{{ chat.value.object.name }}</span>
             <button 
                 @click="$emit('enter-chat', chat)"
                 :disabled="currentChatObject && currentChatObject.channel === chat.value.object.channel"
