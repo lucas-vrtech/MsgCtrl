@@ -138,6 +138,27 @@ createApp({
       this.isLoading = false;
     },
 
+    async changeChatCategory({ chat, newCategory }) {
+      this.isLoading = true;
+      
+      await this.$graffiti.patch(
+        {
+          value: [
+            {
+              op: "replace",
+              path: "/object/category",
+              value: newCategory
+            }
+          ]
+        },
+        chat,
+        this.$graffitiSession.value
+      );
+
+      chat.value.object.category = newCategory;
+      this.isLoading = false;
+    },
+
     /*async getMessages() {
       this.isLoading = true;
       //await new Promise((resolve) => setTimeout(resolve, 1000));
