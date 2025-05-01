@@ -1,3 +1,8 @@
+
+/* GENERAL
+---------------------------------------------------------------
+*/
+
 * {
     font-family:
         Helvetica Neue,
@@ -67,6 +72,10 @@ input[type="text"] {
     padding: 0 20px;
 }
 
+/* MUTED CATEGORY (like ignore, handled)
+---------------------------------------------------------------
+*/
+
 .muted-category {
     opacity: 0.6;
     color: #666;
@@ -118,7 +127,10 @@ input[type="text"] {
     border-color: #666;
 }
 
-/* Add styles for draggable chat items */
+/* DRAGGABLES
+---------------------------------------------------------------
+*/
+
 li[draggable="true"] {
     cursor: grab;
     padding: 8px 12px;
@@ -145,12 +157,10 @@ li[draggable="true"]:active {
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* Add a visual indicator for the drop target */
 [class*="category"]:hover {
     background-color: rgba(0,0,0,0.02);
 }
 
-/* Style the Enter button */
 li[draggable="true"] button {
     padding: 4px 8px;
     background-color: #4CAF50;
