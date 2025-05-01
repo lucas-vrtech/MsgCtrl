@@ -1,11 +1,21 @@
 import { createApp, defineAsyncComponent } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
+
 import { GraffitiLocal } from "@graffiti-garden/implementation-local";
 import { GraffitiRemote } from "@graffiti-garden/implementation-remote";
 import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
 import { ChatCategory } from "./chat-category.js";
 import { groupChatSchema } from "./schema.js";
+import { Profile } from "./profile.js";
 
 const channels = ["designftw"];
+
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [
+    {path: "/profile", component: Profile},
+  ],
+});
 
 createApp({
   components: {
@@ -289,4 +299,5 @@ createApp({
     graffiti: new GraffitiLocal(),
      //graffiti: new GraffitiRemote(),
   })
+  .use(router)
   .mount("#app");
