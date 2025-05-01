@@ -138,7 +138,7 @@ createApp({
       this.isLoading = false;
     },
 
-    async changeChatCategory({ chat, newCategory }) {
+    async changeChatCategory(chat, newCategory) {
       this.isLoading = true;
       
       await this.$graffiti.patch(

@@ -63,6 +63,7 @@
                         :group-chat-objects="groupChatObjects.filter(obj => obj.value.object.category === 'Critical ⚠️')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
+                        @change-category="(chat, category) => changeChatCategory(chat, category)"
                     />
                 </graffiti-discover>
                 <hr>
@@ -76,6 +77,7 @@
                         :group-chat-objects="groupChatObjects.filter(obj => !obj.value.object.category || obj.value.object.category === 'Inbox')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
+                        @change-category="(chat, category) => changeChatCategory(chat, category)"
                     />
                 </graffiti-discover>
                 <hr>
@@ -90,6 +92,7 @@
                         :group-chat-objects="groupChatObjects.filter(obj => obj.value.object.category === 'Ignore 😴')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
+                        @change-category="(chat, category) => changeChatCategory(chat, category)"
                     />
                 </graffiti-discover>
                 <hr>
@@ -104,6 +107,7 @@
                         :group-chat-objects="groupChatObjects.filter(obj => obj.value.object.category === 'Handled 🤖')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
+                        @change-category="(chat, category) => changeChatCategory(chat, category)"
                     />
                 </graffiti-discover>
     

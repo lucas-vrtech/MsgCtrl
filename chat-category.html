@@ -1,7 +1,16 @@
-<div>
+<div
+    @dragover.prevent
+    @drop.prevent="handleDrop"
+>
     <h2>{{ chatCategoryName }}</h2>
     <ul>
-        <li v-for="chat in groupChatObjects" :key="chat.value.object.channel">
+        <li 
+            v-for="chat in groupChatObjects" 
+            :key="chat.value.object.channel"
+            draggable="true"
+            @dragstart="handleDragStart($event, chat)"
+            @dragend="handleDragEnd"
+        >
             {{ chat.value.object.name }}
             <button 
                 @click="$emit('enter-chat', chat)"

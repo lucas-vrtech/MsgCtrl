@@ -94,3 +94,23 @@ input[type="text"] {
     background-color: #f0f0f0;
     border: 1px solid #ddd;
 }
+
+.dragging {
+    opacity: 0.5;
+    cursor: move;
+}
+
+[class*="category"] {
+    min-height: 100px;
+    padding: 10px;
+    border: 2px dashed transparent;
+    transition: border-color 0.2s;
+}
+
+[class*="category"]:hover {
+    border-color: #ccc;
+}
+
+[class*="category"]:active {
+    border-color: #666;
+}
