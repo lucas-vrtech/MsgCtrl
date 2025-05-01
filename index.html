@@ -192,7 +192,7 @@
                                         <button @click="editMessage(message)">Update</button>
                                     </span>
                                     <span v-else>
-                                        {{ message.value.content }}
+                                        <button @click="fetchProfile(message.value.actor)">{{ message.value.actor }}</button> - {{ message.value.content }}
                                         <details>
                                             <summary>...</summary>
                                             <button @click="currentlyEditingMessage = message">Edit</button>

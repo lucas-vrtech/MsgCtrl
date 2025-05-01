@@ -47,6 +47,7 @@ createApp({
             value: {
               content: this.myMessage,
               published: Date.now(),
+              actor: session.actor
             },
             channels: [this.currentChatObject.channel],
         },
