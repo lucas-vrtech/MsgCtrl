@@ -7,13 +7,17 @@ import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
 import { ChatCategory } from "./chat-category.js";
 import { groupChatSchema } from "./schema.js";
 import { Profile } from "./profile.js";
+import { MainView } from "./main-view.js";
+import { ChatView } from "./chat-view.js";
 
 const channels = ["designftw"];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
-    {path: "/profile", component: Profile},
+    {path: "/", component: MainView},
+    {path: "/profile/:profile", component: Profile, props: true},
+    {path: "/chat/:chatId", component: ChatView, props: true},
   ],
 });
 
