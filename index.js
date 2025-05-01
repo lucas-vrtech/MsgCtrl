@@ -23,7 +23,12 @@ createApp({
       isLoading: false,
       renameChat: false,
       newChatName: "",
-      groupChatSchema
+      profile: null,
+      profileReady: false,
+      thisProfile: null,
+      latestProfile: null,
+      groupChatSchema,
+      editingProfile: false,
     };
   },
 
@@ -48,6 +53,95 @@ createApp({
         session,
       );
       this.myMessage = "";
+      this.isLoading = false;
+    },
+
+    async fetchProfile(profile){
+      this.profile = profile;
+      console.log("Fetching profile:", profile);
+      await this.getOrCreateProfile(this.$graffitiSession.value);
+    },
+
+    async createProfile(session){
+      console.log("Creating profile!");
+      this.thisProfile = {
+        value: { 
+          activity: 'Create',
+          object: {
+            type: 'Profile',
+            name: '',
+            email: '',
+            username: this.profile,
+            picURL: '',
+          }
+         },
+         channels: [this.profile],
+      }
+      await this.$graffiti.put(
+        this.thisProfile,
+        session,
+      );
+      this.latestProfile = this.thisProfile;
+      console.log("Created profile!");
+    },
+
+    async getOrCreateProfile(session) {
+      this.isLoading = true;
+      // First try to get the profile
+      const profileIterator = await this.$graffiti.discover([this.profile], {
+        value: {
+          properties: {
+            activity: { type: "string", const: "Create" },
+            object: {
+              type: { type: "string", const: "Profile" },
+              username: { type: "string", const: this.profile }
+            }
+          }
+        }
+      });
+
+      // Check if we found a profile
+      for await (const { object } of profileIterator) {
+        if (object.value.object.username === this.profile) {
+          this.profileReady = true;
+          console.log('Profile found:', object);
+          this.latestProfile = object;
+          this.isLoading = false;
+          return object;
+        }
+      }
+
+      // If no profile found, create a new one
+      await this.createProfile(session);
+      this.isLoading = false;
+    },
+
+    async updateProfile(session){
+      this.isLoading = true;
+      const updatedProfile = await this.$graffiti.patch(
+        {
+          value: [
+            {
+              op: "replace",
+              path: "/object/name",
+              value: this.latestProfile.value.object.name
+            },
+            {
+              op: "replace",
+              path: "/object/email",
+              value: this.latestProfile.value.object.email
+            },
+            {
+              op: "replace",
+              path: "/object/picURL",
+              value: this.latestProfile.value.object.picURL
+            }
+          ]
+        },
+        this.latestProfile,
+        session
+      );
+      this.editingProfile = false;
       this.isLoading = false;
     },
 
