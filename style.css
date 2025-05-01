@@ -11,8 +11,9 @@ h1{
 
 nav{
     display: flex;
-    justify-content: center;
-    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
 }
 
 header{

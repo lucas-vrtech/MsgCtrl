@@ -21,20 +21,21 @@
     <body>
         <div id="app">
             <header>
-                <div class="header-content">
-                    <h1>MsgCtrl</h1>
-                    <p class="slogan">A Mission Control for your messages</p>
-                </div>
                 <nav>
                     <button v-if="!$graffitiSession.value" @click="$graffiti.login()">
                         Log In
                     </button>
-                <template v-else>
-                    <button @click="$graffiti.logout($graffitiSession.value)">
-                            Log Out
-                        </button>
+                    <template v-else>
+                        <button @click="$graffiti.logout($graffitiSession.value)">
+                                Log Out
+                            </button>
                     </template>
+                    <button>Profile</button>
                 </nav>
+                <div class="header-content">
+                    <h1>MsgCtrl</h1>
+                    <p class="slogan">A Mission Control for your messages</p>
+                </div>
             </header>
             <div v-if="$graffitiSession.value">
                 <form @submit.prevent="createChannel($graffitiSession.value)">
