@@ -6,16 +6,16 @@
     <ul>
         <li 
             v-for="chat in groupChatObjects" 
-            :key="chat.value.object.channel"
+            :key="chat?.value?.object?.channel"
             draggable="true"
             @dragstart="handleDragStart($event, chat)"
             @dragend="handleDragEnd"
         >
             <span class="grip-handle">⋮⋮⋮</span>
-            <span class="chat-name">{{ chat.value.object.name }}</span>
+            <span class="chat-name">{{ chat?.value?.object?.name }}</span>
             <button 
                 @click="$emit('enter-chat', chat)"
-                :disabled="currentChatObject && currentChatObject.channel === chat.value.object.channel"
+                :disabled="currentChatObject && currentChatObject.channel === chat?.value?.object?.channel"
             >
                 Enter
             </button>

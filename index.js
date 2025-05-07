@@ -10,7 +10,7 @@ import { Profile } from "./profile.js";
 import { MainView } from "./main-view.js";
 import { ChatView } from "./chat-view.js";
 
-const channels = ["designftw"];
+const channels = ["designftw-lucas"];
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -162,6 +162,7 @@ createApp({
 
     async createChannel(session) {
       this.isLoading = true;
+      console.log("Creating channel:", this.myNewChatName);
       await this.$graffiti.put(
         {
           value: { 
@@ -300,8 +301,8 @@ createApp({
   },
 })
   .use(GraffitiPlugin, {
-    graffiti: new GraffitiLocal(),
-     //graffiti: new GraffitiRemote(),
+    //graffiti: new GraffitiLocal(),
+     graffiti: new GraffitiRemote(),
   })
   .use(router)
   .mount("#app");

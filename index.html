@@ -39,7 +39,8 @@
                 </div>
             </header>
 
-            <router-view></router-view>
+ 
+            <!-- <router-view></router-view> -->
 
             <div v-if="$graffitiSession.value && profile == $graffitiSession.value.actor && profileReady && editingProfile">
                 <h2>Profile</h2>
@@ -69,6 +70,7 @@
             </div>
 
             <div v-if="$graffitiSession.value">
+                Hello, {{ $graffitiSession.value.actor }}
                 <form @submit.prevent="createChannel($graffitiSession.value)">
                     <p> Create Channel
                     <input
@@ -87,12 +89,12 @@
     
                 <graffiti-discover
                     v-slot="{ objects: groupChatObjects }"
-                    :channels="['designftw']"
+                    :channels="['designftw-lucas']"
                     :schema="groupChatSchema"
                 >
                     <chat-category 
                         :chat-category-name="'Critical ⚠️'"
-                        :group-chat-objects="groupChatObjects.filter(obj => obj.value.object.category === 'Critical ⚠️')"
+                        :group-chat-objects="groupChatObjects.filter(obj => obj?.value?.object?.category === 'Critical ⚠️')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"
@@ -101,12 +103,12 @@
                 <hr>
                 <graffiti-discover
                     v-slot="{ objects: groupChatObjects }"
-                    :channels="['designftw']"
+                    :channels="['designftw-lucas']"
                     :schema="groupChatSchema"
                 >
                     <chat-category 
                         :chat-category-name="'Inbox'"
-                        :group-chat-objects="groupChatObjects.filter(obj => !obj.value.object.category || obj.value.object.category === 'Inbox')"
+                        :group-chat-objects="groupChatObjects.filter(obj => !obj?.value?.object?.category || obj?.value?.object?.category === 'Inbox')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"
@@ -115,13 +117,13 @@
                 <hr>
                 <graffiti-discover
                 v-slot="{ objects: groupChatObjects }"
-                :channels="['designftw']"
+                :channels="['designftw-lucas']"
                 :schema="groupChatSchema"
                 >
                     <chat-category 
                         class="muted-category"
                         :chat-category-name="'Ignore 😴'"
-                        :group-chat-objects="groupChatObjects.filter(obj => obj.value.object.category === 'Ignore 😴')"
+                        :group-chat-objects="groupChatObjects.filter(obj => obj?.value?.object?.category === 'Ignore 😴')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"
@@ -130,13 +132,13 @@
                 <hr>
                 <graffiti-discover
                 v-slot="{ objects: groupChatObjects }"
-                :channels="['designftw']"
+                :channels="['designftw-lucas']"
                 :schema="groupChatSchema"
                 >
                     <chat-category 
                         class="muted-category"
                         :chat-category-name="'Handled 🤖'"
-                        :group-chat-objects="groupChatObjects.filter(obj => obj.value.object.category === 'Handled 🤖')"
+                        :group-chat-objects="groupChatObjects.filter(obj => obj?.value?.object?.category === 'Handled 🤖')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"
