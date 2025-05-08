@@ -1,6 +1,7 @@
 <div
     @dragover.prevent
     @drop.prevent="handleDrop"
+    :class="{ 'empty-category': !groupChatObjects || groupChatObjects.length === 0 }"
 >
     <h2>{{ chatCategoryName }}</h2>
     <ul>

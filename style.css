@@ -206,7 +206,7 @@ li[draggable="true"]:hover .grip-handle {
     color: #666;
 }
 
-/* ANIMATIONS
+/* ANIMATED STUFF
 ---------------------------------------------------------------
 */
 
@@ -221,6 +221,17 @@ li[draggable="true"]:hover .grip-handle {
 h1:hover {
     animation: title-is-alive 0.5s cubic-bezier(0.2, 0.8, 0.2, 1.2) forwards;
     color: #218dc3;
+}
+
+.empty-category h2 {
+    color: #aaa;
+    opacity: 0.7;
+    transition: color 0.3s ease, opacity 0.3s ease;
+}
+  
+.empty-category:hover h2 {
+    color: #666;
+    opacity: 0.9;
 }
 
 @keyframes pop-in {
