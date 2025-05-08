@@ -28,7 +28,7 @@ export async function ChatCategory() {
             },
             handleDrop(event) {
                 const chat = JSON.parse(event.dataTransfer.getData('text/plain'));
-                if (chat.value.object.category !== this.chatCategoryName) {
+                if (chat?.value?.object?.category !== this.chatCategoryName) {
                     this.$emit('change-category', chat, this.chatCategoryName);
                 }
             }

@@ -10,6 +10,7 @@
             draggable="true"
             @dragstart="handleDragStart($event, chat)"
             @dragend="handleDragEnd"
+            class="chat-item-enter"
         >
             <span class="grip-handle">⋮⋮⋮</span>
             <span class="chat-name">{{ chat?.value?.object?.name }}</span>
