@@ -1,1 +1,45 @@
-<h2> PROFILE AS TEMPLATE </h2>
+<div>
+  <div v-if="isLoading">
+    <p>Loading profile data for {{ profile }}...</p>
+    <img src="img/loader.svg" class="loader" alt="Loading" />
+  </div>
+  
+  <div v-else-if="editingProfile && profileReady && latestProfile && $graffitiSession.value && profile === $root.removeURLFromUsername($graffitiSession.value.actor)">
+    <h2>Edit Profile</h2>
+    <form @submit.prevent="updateProfile($graffitiSession.value)">
+      <p><label for="username">Username</label>
+      <p>Username: {{ latestProfile.value.object.username }}</p>
+      
+      <p><label for="name">Name</label>
+      <input type="text" v-model="latestProfile.value.object.name" /></p>
+      
+      <p><label for="email">Email</label>
+      <input type="email" v-model="latestProfile.value.object.email" /></p>
+      
+      <p><label for="picURL">Profile Picture URL</label>
+      <input type="text" v-model="latestProfile.value.object.picURL" /></p>
+      
+      <button type="submit">Update Profile</button>
+      <button type="button" @click="cancelEditing">Cancel</button>
+    </form>
+  </div>
+  
+  <div v-else-if="profileReady && latestProfile">
+    <h2>Profile</h2>
+    <p>Username: {{ latestProfile.value.object.username }}</p>
+    <p>Name: {{ latestProfile.value.object.name }}</p>
+    <p>Email: {{ latestProfile.value.object.email }}</p>
+    <img v-if="latestProfile.value.object.picURL" :src="latestProfile.value.object.picURL" />
+    
+    <div v-if="$graffitiSession.value && profile === $root.removeURLFromUsername($graffitiSession.value.actor)">
+      <button @click="startEditing">Edit Profile</button>
+    </div>
+  </div>
+  
+  <div v-else>
+    <p>Could not load profile for: {{ profile }}</p>
+  </div>
+</div>
+
+
+

@@ -19,6 +19,9 @@ const router = createRouter({
     {path: "/profile/:profile", component: Profile, props: true},
     {path: "/chat/:chatId", component: ChatView, props: true},
   ],
+  scrollBehavior(to, from, savedPosition) {
+    return { top: 0 }
+  }
 });
 
 createApp({
@@ -61,7 +64,7 @@ createApp({
             value: {
               content: this.myMessage,
               published: Date.now(),
-              actor: session.actor
+              actor: this.removeURLFromUsername(session.actor)
             },
             channels: [this.currentChatObject.channel],
         },
@@ -71,7 +74,16 @@ createApp({
       this.isLoading = false;
     },
 
+    removeURLFromUsername(username){
+      username = username.replace(/https?:\/\/[^\/]+\//, '');
+      return username;
+    },
+
     async fetchProfile(profile){
+      this.profileReady = false;
+      this.latestProfile = null;
+      this.editingProfile = false;
+      
       this.profile = profile;
       console.log("Fetching profile:", profile);
       await this.getOrCreateProfile(this.$graffitiSession.value);
@@ -131,33 +143,42 @@ createApp({
       this.isLoading = false;
     },
 
-    async updateProfile(session){
+    async updateProfile(profileData, session) {
       this.isLoading = true;
+      
+      const profileToUpdate = profileData || this.latestProfile;
+      
+      console.log("Updating profile:", profileToUpdate);
+      
       const updatedProfile = await this.$graffiti.patch(
         {
           value: [
             {
               op: "replace",
               path: "/object/name",
-              value: this.latestProfile.value.object.name
+              value: profileToUpdate.value.object.name
             },
             {
               op: "replace",
               path: "/object/email",
-              value: this.latestProfile.value.object.email
+              value: profileToUpdate.value.object.email
             },
             {
               op: "replace",
               path: "/object/picURL",
-              value: this.latestProfile.value.object.picURL
+              value: profileToUpdate.value.object.picURL
             }
           ]
         },
-        this.latestProfile,
+        profileToUpdate,
         session
       );
+      
+      this.latestProfile = profileToUpdate;
       this.editingProfile = false;
       this.isLoading = false;
+      
+      return updatedProfile;
     },
 
     async createChannel(session) {
@@ -300,9 +321,9 @@ createApp({
     },
   },
 })
+  .use(router)
   .use(GraffitiPlugin, {
     //graffiti: new GraffitiLocal(),
      graffiti: new GraffitiRemote(),
   })
-  .use(router)
   .mount("#app");

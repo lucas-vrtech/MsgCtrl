@@ -31,18 +31,18 @@
                                 Log Out
                             </button>
                     </template>
-                    <button  v-if="$graffitiSession.value" @click="fetchProfile($graffitiSession.value.actor)">Profile</button>
+                    <button  v-if="$graffitiSession.value" @click="$router.push('/profile/' + removeURLFromUsername($graffitiSession.value.actor))">Profile</button>
                 </nav>
                 <div class="header-content">
-                    <h1>MsgCtrl</h1>
+                    <h1><router-link to="/">MsgCtrl</router-link></h1>
                     <p class="slogan">A Mission Control for your messages</p>
                 </div>
             </header>
 
  
-            <!-- <router-view></router-view> -->
-
-            <div v-if="$graffitiSession.value && profile == $graffitiSession.value.actor && profileReady && editingProfile">
+            <router-view></router-view>
+            <!--
+            <div v-if="$graffitiSession.value && profile == removeURLFromUsername($graffitiSession.value.actor) && profileReady && editingProfile">
                 <h2>Profile</h2>
                 <form @submit.prevent="updateProfile($graffitiSession.value)">
                     <p><label for="username">Username</label>
@@ -66,11 +66,14 @@
                 <p>Name: {{ latestProfile.value.object.name }}</p>
                 <p>Email: {{ latestProfile.value.object.email }}</p>
                 <img :src="latestProfile.value.object.picURL" />
-                <button v-if="!editingProfile && profile == $graffitiSession.value.actor"  @click="editingProfile = true">Edit</button>
+                <button v-if="!editingProfile && profile == removeURLFromUsername($graffitiSession.value.actor)"  @click="editingProfile = true">Edit</button>
             </div>
+            -->
 
             <div v-if="$graffitiSession.value">
-                Hello, {{ $graffitiSession.value.actor }}
+                Hello, {{ removeURLFromUsername($graffitiSession.value.actor) }}
+                <button @click="$router.push('/profile/' + removeURLFromUsername($graffitiSession.value.actor))">Profile</button>
+                <button @click="$router.push('/')">Home</button>
                 <form @submit.prevent="createChannel($graffitiSession.value)">
                     <p> Create Channel
                     <input
@@ -196,7 +199,7 @@
                                         <button @click="editMessage(message)">Update</button>
                                     </span>
                                     <span v-else>
-                                        <button @click="fetchProfile(message.value.actor)">{{ message.value.actor }}</button> - {{ message.value.content }}
+                                        <button @click="$router.push('/profile/' + removeURLFromUsername(message.value.actor))">{{ message.value.actor }}</button> - {{ message.value.content }}
                                         <details>
                                             <summary>...</summary>
                                             <button @click="currentlyEditingMessage = message">Edit</button>
