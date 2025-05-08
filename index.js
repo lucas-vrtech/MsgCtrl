@@ -5,11 +5,12 @@ import { GraffitiLocal } from "@graffiti-garden/implementation-local";
 import { GraffitiRemote } from "@graffiti-garden/implementation-remote";
 import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
 import { ChatCategory } from "./chat-category.js";
-import { groupChatSchema } from "./schema.js";
+import { groupChatSchema, categoryMappingSchema } from "./schema.js";
 import { Profile } from "./profile.js";
 import { MainView } from "./main-view.js";
 import { ChatView } from "./chat-view.js";
 
+// The channel that chats are put in
 const channels = ["designftw-lucas"];
 
 const router = createRouter({
@@ -45,13 +46,33 @@ createApp({
       thisProfile: null,
       latestProfile: null,
       groupChatSchema,
+      categoryMappingSchema,
       editingProfile: false,
+      categoryMappings: {},
+      categoriesLoaded: false,
     };
   },
 
   computed: {
     currentChatObject() {
       return this.currentChat?.value?.object;
+    },
+    
+    userCategoryChannel() {
+      if (!this.$graffitiSession.value) return null;
+      const username = this.removeURLFromUsername(this.$graffitiSession.value.actor);
+      return `${username}-categories`;
+    }
+  },
+
+  watch: {
+    '$graffitiSession.value': async function(newSession) {
+      if (newSession) {
+        await this.loadCategoryMappings();
+      } else {
+        this.categoryMappings = {};
+        this.categoriesLoaded = false;
+      }
     }
   },
 
@@ -184,23 +205,132 @@ createApp({
     async createChannel(session) {
       this.isLoading = true;
       console.log("Creating channel:", this.myNewChatName);
-      await this.$graffiti.put(
-        {
-          value: { 
-            activity: 'Create',
-            object: {
-              type: 'Group Chat',
-              name: this.myNewChatName,
-              channel: crypto.randomUUID(),
-              category: this.myNewChatCategory
-            }
-           },
-           channels,
-        },
-        session,
-      );
+      
+
+      const chatObject = {
+        value: { 
+          activity: 'Create',
+          object: {
+            type: 'Group Chat',
+            name: this.myNewChatName,
+            channel: crypto.randomUUID(),
+
+          }
+         },
+         channels,
+      };
+      
+      const createdChat = await this.$graffiti.put(chatObject, session);
+      
+
+      if (createdChat && this.userCategoryChannel) {
+        await this.setChatCategory(
+          createdChat.value.object.channel, 
+          this.myNewChatCategory, 
+          session
+        );
+      }
+      
       this.myNewChatName = "";
       this.isLoading = false;
+    },
+
+
+    async loadCategoryMappings() {
+      if (!this.$graffitiSession.value || !this.userCategoryChannel) {
+        return;
+      }
+      
+      this.isLoading = true;
+      this.categoryMappings = {};
+      
+      try {
+        const mappingsIterator = await this.$graffiti.discover(
+          [this.userCategoryChannel],
+          this.categoryMappingSchema
+        );
+        
+        for await (const { object } of mappingsIterator) {
+          const chatChannel = object.value.chatChannel;
+          const category = object.value.category;
+          
+
+          this.categoryMappings[chatChannel] = {
+            mappingObject: object,
+            category: category
+          };
+        }
+        
+        this.categoriesLoaded = true;
+        console.log('Loaded category mappings:', this.categoryMappings);
+      } catch (error) {
+        console.error('Error loading category mappings:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    
+
+    getChatCategory(chatChannel) {
+      if (!this.categoriesLoaded) {
+        return 'Inbox'; 
+      }
+      
+      const mapping = this.categoryMappings[chatChannel];
+      return mapping ? mapping.category : 'Inbox';
+    },
+    
+
+    async setChatCategory(chatChannel, category, session) {
+      if (!this.$graffitiSession.value || !this.userCategoryChannel) {
+        return;
+      }
+      
+      this.isLoading = true;
+      
+      try {
+        const existingMapping = this.categoryMappings[chatChannel];
+        
+        if (existingMapping) {
+
+          await this.$graffiti.patch(
+            {
+              value: [
+                {
+                  op: "replace",
+                  path: "/category",
+                  value: category
+                }
+              ]
+            },
+            existingMapping.mappingObject,
+            session
+          );
+
+          existingMapping.category = category;
+        } else {
+          const mappingObject = {
+            value: {
+              chatChannel: chatChannel,
+              category: category
+            },
+            channels: [this.userCategoryChannel]
+          };
+          
+          const createdMapping = await this.$graffiti.put(mappingObject, session);
+          
+          this.categoryMappings[chatChannel] = {
+            mappingObject: createdMapping,
+            category: category
+          };
+        }
+        
+        console.log(`Set category for ${chatChannel} to ${category}`);
+      } catch (error) {
+        console.error('Error setting category:', error);
+      } finally {
+        this.isLoading = false;
+      }
     },
 
     async updateChatName(){
@@ -221,7 +351,6 @@ createApp({
         this.$graffitiSession.value
       );
 
-      // Update the local currentChat object
       this.currentChat.value.object.name = this.newChatName;
       this.isLoading = false;
     },
@@ -270,49 +399,16 @@ createApp({
     },
 
     async changeChatCategory(chat, newCategory) {
-      this.isLoading = true;
+      if (!this.$graffitiSession.value || !chat?.value?.object?.channel) {
+        return;
+      }
       
-      await this.$graffiti.patch(
-        {
-          value: [
-            {
-              op: "replace",
-              path: "/object/category",
-              value: newCategory
-            }
-          ]
-        },
-        chat,
+      await this.setChatCategory(
+        chat.value.object.channel,
+        newCategory,
         this.$graffitiSession.value
       );
-
-      chat.value.object.category = newCategory;
-      this.isLoading = false;
     },
-
-    /*async getMessages() {
-      this.isLoading = true;
-      //await new Promise((resolve) => setTimeout(resolve, 1000));
-      const messageObjectsIterator = await this.$graffiti.discover(channels, {
-        value: {
-            properties: {
-              content: { type: "string" },
-              published: { type: "number" },
-            },
-        },
-      });
-
-      console.log(messageObjectsIterator);
-
-      const newMessageObjects = [];
-      for await (const { object } of messageObjectsIterator) {
-        newMessageObjects.push(object);
-      }
-      this.isLoading = false;
-
-      // Sort here
-      this.messageObjects = newMessageObjects.toSorted((a, b) =>  b.published - a.published);
-    },*/
 
     *getMessageObjectsIterator() {
       for (const object of this.sentMessageObjects) {

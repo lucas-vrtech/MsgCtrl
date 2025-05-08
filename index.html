@@ -90,6 +90,10 @@
                     <input type="submit" value="Create" :disabled="!myNewChatName || isLoading" />
                 </form>
     
+                <div v-if="!categoriesLoaded" class="categories-loading">
+                    Loading your category preferences...
+                </div>
+    
                 <graffiti-discover
                     v-slot="{ objects: groupChatObjects }"
                     :channels="['designftw-lucas']"
@@ -97,7 +101,8 @@
                 >
                     <chat-category 
                         :chat-category-name="'Critical ⚠️'"
-                        :group-chat-objects="groupChatObjects.filter(obj => obj?.value?.object?.category === 'Critical ⚠️')"
+                        :group-chat-objects="groupChatObjects.filter(obj => 
+                            categoriesLoaded && getChatCategory(obj?.value?.object?.channel) === 'Critical ⚠️')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"
@@ -111,7 +116,8 @@
                 >
                     <chat-category 
                         :chat-category-name="'Inbox'"
-                        :group-chat-objects="groupChatObjects.filter(obj => !obj?.value?.object?.category || obj?.value?.object?.category === 'Inbox')"
+                        :group-chat-objects="groupChatObjects.filter(obj => 
+                            categoriesLoaded && getChatCategory(obj?.value?.object?.channel) === 'Inbox')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"
@@ -126,7 +132,8 @@
                     <chat-category 
                         class="muted-category"
                         :chat-category-name="'Ignore 😴'"
-                        :group-chat-objects="groupChatObjects.filter(obj => obj?.value?.object?.category === 'Ignore 😴')"
+                        :group-chat-objects="groupChatObjects.filter(obj => 
+                            categoriesLoaded && getChatCategory(obj?.value?.object?.channel) === 'Ignore 😴')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"
@@ -141,7 +148,8 @@
                     <chat-category 
                         class="muted-category"
                         :chat-category-name="'Handled 🤖'"
-                        :group-chat-objects="groupChatObjects.filter(obj => obj?.value?.object?.category === 'Handled 🤖')"
+                        :group-chat-objects="groupChatObjects.filter(obj => 
+                            categoriesLoaded && getChatCategory(obj?.value?.object?.channel) === 'Handled 🤖')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"

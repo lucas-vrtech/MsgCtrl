@@ -234,6 +234,23 @@ h1:hover {
     opacity: 0.9;
 }
 
+.categories-loading {
+    background-color: #f8f8f8;
+    border: 1px dashed #ccc;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
 @keyframes pop-in {
   from {
     opacity: 0;

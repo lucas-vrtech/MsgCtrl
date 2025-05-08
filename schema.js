@@ -28,4 +28,19 @@ export const groupChatSchema = {
             }
         }
     }
+};
+
+export const categoryMappingSchema = {
+    value: {
+        required: ['chatChannel', 'category'],
+        properties: {
+            chatChannel: {
+                type: 'string'
+            },
+            category: {
+                type: 'string',
+                enum: ['Critical ⚠️', 'Inbox', 'Ignore 😴', 'Handled 🤖']
+            }
+        }
+    }
 }; 
