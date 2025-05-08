@@ -29,7 +29,7 @@
     <p>Username: {{ latestProfile.value.object.username }}</p>
     <p>Name: {{ latestProfile.value.object.name }}</p>
     <p>Email: {{ latestProfile.value.object.email }}</p>
-    <img v-if="latestProfile.value.object.picURL" :src="latestProfile.value.object.picURL" />
+    <img class="profile-image" v-if="latestProfile.value.object.picURL" :src="latestProfile.value.object.picURL" />
     
     <div v-if="$graffitiSession.value && profile === $root.removeURLFromUsername($graffitiSession.value.actor)">
       <button @click="startEditing">Edit Profile</button>

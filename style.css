@@ -70,6 +70,15 @@ input[type="text"] {
     margin-bottom: 0;
 }
 
+.profile-image {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+  }
+
 #app {
     max-width: 800px;
     margin: 0 auto;
@@ -284,3 +293,4 @@ h1:hover {
         transform: scale(1);
     }
 }
+
