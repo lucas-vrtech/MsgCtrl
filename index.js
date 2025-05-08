@@ -50,6 +50,8 @@ createApp({
       editingProfile: false,
       categoryMappings: {},
       categoriesLoaded: false,
+      doingProMode: false,
+      openaiApiKey: "",
     };
   },
 
@@ -93,6 +95,84 @@ createApp({
       );
       this.myMessage = "";
       this.isLoading = false;
+    },
+
+
+    async activateProMode(session){
+      this.isLoading = true;
+      
+      try {
+        if (!this.openaiApiKey) {
+          console.error("OpenAI API key is missing");
+          this.isLoading = false;
+          return;
+        }
+        
+        const chats = [];
+        for await (const { object } of await this.$graffiti.discover(channels, this.groupChatSchema)) {
+          if (object?.value?.object?.channel && object?.value?.object?.name) {
+            chats.push({
+              name: object.value.object.name,
+              category: this.getChatCategory(object.value.object.channel)
+            });
+          }
+        }
+
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.openaiApiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            response_format: { type: "json_object" },
+            messages: [
+              {
+                role: 'system',
+                content: JSON.stringify(chats)
+              },
+              {
+                role: 'system',
+                content: 'Above is a list of chats with their current category. Analyze the chat organization and suggest new categories where appropriate. For example, important things should go to "Critical ⚠️" and things that are not important should go to "Ignore 😴". Structure your response as a JSON object: { "chats": [ { "name": "Chat Name", "category": "New Category" } ] }'
+              }
+            ]
+          })
+        });
+        
+        if (!response.ok) {
+          console.error('OpenAI API error:', await response.json());
+          this.isLoading = false;
+          return;
+        }
+        
+        const aiResponse = (await response.json()).choices[0]?.message?.content || '{}';
+        console.log('LLM response:', aiResponse);
+        await this.applyAiResponse(session, aiResponse, chats);
+        
+      } catch (error) {
+        console.error('Error in Pro Mode:', error);
+      } finally {
+        this.doingProMode = false;
+        this.isLoading = false;
+      }
+    },
+
+    async applyAiResponse(session, aiResponse, chats){ // I need to evaluate the safety of this one :P
+      try {
+        const suggestions = JSON.parse(aiResponse);
+        if (!suggestions.chats || !Array.isArray(suggestions.chats)) return;
+        
+        for (const change of suggestions.chats) {
+          const chat = chats.find(c => c.name === change.name);
+          if (chat && chat.category !== change.category) {
+            await this.setChatCategory(chat.channel, change.category, session);
+            console.log(`Changed "${chat.name}" from "${chat.category}" to "${change.category}"`);
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing LLM response:', error);
+      }
     },
 
     removeURLFromUsername(username){

@@ -41,39 +41,16 @@
 
  
             <router-view></router-view>
-            <!--
-            <div v-if="$graffitiSession.value && profile == removeURLFromUsername($graffitiSession.value.actor) && profileReady && editingProfile">
-                <h2>Profile</h2>
-                <form @submit.prevent="updateProfile($graffitiSession.value)">
-                    <p><label for="username">Username</label>
-                    <input type="text" v-model="latestProfile.value.object.username" /></p>
-
-                    <p><label for="name">Name</label>
-                    <input type="text" v-model="latestProfile.value.object.name" /></p>
-
-                    <p><label for="email">Email</label>
-                    <input type="email" v-model="latestProfile.value.object.email" /></p>
-
-                    <p><label for="picURL">Pic URL</label>
-                    <input type="text" v-model="latestProfile.value.object.picURL" /></p>
-
-                    <input type="submit" value="Update" :disabled="!profile || isLoading" />
-                </form>
-            </div>
-            <div v-else-if="profile && profileReady">
-                <h2>Profile</h2>
-                <p>Username: {{ latestProfile.value.object.username}}</p>
-                <p>Name: {{ latestProfile.value.object.name }}</p>
-                <p>Email: {{ latestProfile.value.object.email }}</p>
-                <img :src="latestProfile.value.object.picURL" />
-                <button v-if="!editingProfile && profile == removeURLFromUsername($graffitiSession.value.actor)"  @click="editingProfile = true">Edit</button>
-            </div>
-            -->
 
             <div v-if="$graffitiSession.value">
                 Hello, {{ removeURLFromUsername($graffitiSession.value.actor) }}
                 <button @click="$router.push('/profile/' + removeURLFromUsername($graffitiSession.value.actor))">Profile</button>
                 <button @click="$router.push('/')">Home</button>
+                <button @click="doingProMode = !doingProMode">Pro Mode</button>
+                <form v-if="doingProMode" @submit.prevent="activateProMode($graffitiSession.value)">
+                    <input type="text" v-model="openaiApiKey" placeholder="OpenAI API Key" required />
+                    <input type="submit" value="Activate Pro Mode" />
+                </form>
                 <form @submit.prevent="createChannel($graffitiSession.value)">
                     <p> Create Channel
                     <input
