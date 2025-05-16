@@ -39,14 +39,16 @@
                 </div>
             </header>
 
- 
-            <router-view></router-view>
-
             <div v-if="$graffitiSession.value">
+                <router-view></router-view>
     
                 <div v-if="isLoading">
                     <img src="img/loader.svg" class="loader" alt="Loading" />
                 </div>
+            </div>
+
+            <div v-else>
+                <h2>Please log in to continue</h2>
             </div>
         </div> 
         <script src="index.js" type="module"></script>
