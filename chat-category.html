@@ -17,7 +17,28 @@
             class="chat-item-enter"
         >
             <span class="grip-handle">⋮⋮⋮</span>
-            <span class="chat-name">{{ chat?.value?.object?.name }}</span>
+            <span class="chat-name">
+                {{ chat?.value?.object?.name }}
+                <graffiti-discover
+                    v-slot="{ objects: messageObjects }"
+                    :channels="[chat?.value?.object?.channel]"
+                    :schema="{
+                        properties: {
+                            value: {
+                                required: ['content', 'published'],
+                                properties: {
+                                    content: { type: 'string' },
+                                    published: { type: 'number' }
+                                }
+                            }
+                        }
+                    }"
+                >
+                    <small v-if="messageObjects.length > 0" class="recent-message">
+                        - {{ $root.removeURLFromUsername(messageObjects.sort((a, b) => b.value.published - a.value.published)[0].value.actor) }}: {{ messageObjects.sort((a, b) => b.value.published - a.value.published)[0].value.content }}
+                    </small>
+                </graffiti-discover>
+            </span>
             <div class="chat-actions">
                 <button 
                     @click="$emit('enter-chat', chat)"

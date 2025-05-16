@@ -223,6 +223,18 @@ li[draggable="true"] button.inverted-btn {
     margin: 0 8px;
 }
 
+.recent-message {
+    color: #666;
+    font-size: 0.9em;
+    margin-left: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+    display: inline-block;
+    vertical-align: bottom;
+}
+
 li[draggable="true"]:hover .grip-handle {
     color: #666;
 }
