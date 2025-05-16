@@ -1,9 +1,12 @@
 <div
-    @dragover.prevent
+    class="chat-category-container"
+    @dragover.prevent="handleDragOver"
+    @dragleave.prevent="handleDragLeave"
     @drop.prevent="handleDrop"
-    :class="{ 'empty-category': !groupChatObjects || groupChatObjects.length === 0 }"
+    :class="{'empty-category': !groupChatObjects || groupChatObjects.length === 0 }"
 >
     <h2>{{ chatCategoryName }}</h2>
+    <p v-if="groupChatObjects.length === 0" class="empty-category-msg">No chats, drag something here!</p>
     <ul>
         <li 
             v-for="chat in groupChatObjects" 
@@ -25,7 +28,7 @@
                 </button>
                 <button 
                     @click="$emit('leave-channel', chat)"
-                    class="leave-btn"
+                    class="leave-btn inverted-btn"
                     title="Leave Channel"
                 >
                     Leave

@@ -19,6 +19,7 @@ export async function MainView() {
         joinedChannelsLoaded: false,
         publicChannelsToShow: [],
         selectedPublicChannel: null,
+        showChannelOptions: false,
         groupChatSchema
       };
     },

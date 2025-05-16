@@ -13,42 +13,51 @@
             </div>
         </div>
         
-        <div class="control-panel">
-            <div class="create-channel">
-                <h3>Create New Channel</h3>
-                <form @submit.prevent="createChannel($graffitiSession.value)">
-                    <input
-                        type="text"
-                        v-model="myNewChatName"
-                        placeholder="Enter channel name"
-                        class="channel-input"
-                    />
-                    <select v-model="myNewChatCategory" class="category-select">
-                        <option value="Critical ⚠️">Critical ⚠️</option>
-                        <option value="Inbox">Inbox</option>
-                        <option value="Ignore 😴">Ignore 😴</option>
-                        <option value="Handled 🤖">Handled 🤖</option>
-                    </select>
-                    <button type="submit" :disabled="!myNewChatName || isLoading">Create Channel</button>
-                </form>
-            </div>
+        <div class="channel-management">
+            <button 
+                @click="showChannelOptions = !showChannelOptions" 
+                class="toggle-channel-options-btn"
+            >
+                {{ showChannelOptions ? 'Hide Options' : 'Create/Add Channel' }}
+            </button>
             
-            <div class="join-channel">
-                <h3>Join Existing Channel</h3>
-                <div class="join-controls">
-                    <select v-model="selectedPublicChannel" class="channel-select">
-                        <option :value="null">Select a channel to join</option>
-                        <option v-for="channel in publicChannelsToShow" 
-                                :key="channel.value.object.channel" 
-                                :value="channel"
-                                :disabled="hasJoinedChannel(channel.value.object.channel)">
-                            {{ channel.value.object.name }} 
-                            {{ hasJoinedChannel(channel.value.object.channel) ? '(Joined)' : '' }}
-                        </option>
-                    </select>
-                    <button @click="joinSelectedChannel()" :disabled="!selectedPublicChannel || hasJoinedChannel(selectedPublicChannel?.value?.object?.channel)">
-                        Join Channel
-                    </button>
+            <div v-if="showChannelOptions" class="channel-options">
+                <div class="create-channel">
+                    <h3>Create New Channel</h3>
+                    <form @submit.prevent="createChannel($graffitiSession.value)">
+                        <input
+                            type="text"
+                            v-model="myNewChatName"
+                            placeholder="Enter channel name"
+                            class="channel-input"
+                        />
+                        <select v-model="myNewChatCategory" class="category-select">
+                            <option value="Critical ⚠️">Critical ⚠️</option>
+                            <option value="Inbox">Inbox</option>
+                            <option value="Ignore 😴">Ignore 😴</option>
+                            <option value="Handled 🤖">Handled 🤖</option>
+                        </select>
+                        <button type="submit" :disabled="!myNewChatName || isLoading">Create Channel</button>
+                    </form>
+                </div>
+                
+                <div class="join-channel">
+                    <h3>Join Existing Channel</h3>
+                    <div class="join-controls">
+                        <select v-model="selectedPublicChannel" class="channel-select">
+                            <option :value="null">Select a channel to join</option>
+                            <option v-for="channel in publicChannelsToShow" 
+                                    :key="channel.value.object.channel" 
+                                    :value="channel"
+                                    :disabled="hasJoinedChannel(channel.value.object.channel)">
+                                {{ channel.value.object.name }} 
+                                {{ hasJoinedChannel(channel.value.object.channel) ? '(Joined)' : '' }}
+                            </option>
+                        </select>
+                        <button @click="joinSelectedChannel()" :disabled="!selectedPublicChannel || hasJoinedChannel(selectedPublicChannel?.value?.object?.channel)">
+                            Join Channel
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

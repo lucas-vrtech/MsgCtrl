@@ -126,23 +126,33 @@ input[type="text"] {
 }
 
 [class*="category"] {
-    min-height: 100px;
     padding: 10px;
     border: 2px dashed transparent;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, background-color 0.2s;
 }
 
 [class*="category"]:hover {
-    border-color: #ccc;
-}
-
-[class*="category"]:active {
-    border-color: #666;
+    border-color: transparent;
+    background-color: transparent;
 }
 
 /* DRAGGABLES
 ---------------------------------------------------------------
 */
+
+body.is-dragging .chat-category-container {
+    border-color: #ccc;
+}
+
+body.is-dragging .chat-category-container:hover {
+    border-color: #999;
+    background-color: rgba(0,0,0,0.03);
+}
+
+[class*="category"].drag-over {
+    border-color: #4CAF50 !important;
+    background-color: rgba(76, 175, 80, 0.05);
+}
 
 li[draggable="true"] {
     cursor: grab;
@@ -170,10 +180,6 @@ li[draggable="true"]:active {
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-[class*="category"]:hover {
-    background-color: rgba(0,0,0,0.02);
-}
-
 li[draggable="true"] button {
     padding: 4px 8px;
     background-color: #4CAF50;
@@ -192,6 +198,12 @@ li[draggable="true"] button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
 }
+
+li[draggable="true"] button.inverted-btn {
+    background-color: white;
+    color: green;
+    border: 1px solid green;
+  }  
 
 .grip-handle {
     color: #999;
@@ -293,4 +305,8 @@ h1:hover {
         transform: scale(1);
     }
 }
-
+.empty-category-msg {
+    color: #aaa;
+    font-size: 0.9em;
+    text-align: center;
+}
