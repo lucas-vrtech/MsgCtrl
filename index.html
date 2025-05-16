@@ -71,6 +71,7 @@
             -->
 
             <div v-if="$graffitiSession.value">
+                <!--
                 Hello, {{ removeURLFromUsername($graffitiSession.value.actor) }}
                 <button @click="$router.push('/profile/' + removeURLFromUsername($graffitiSession.value.actor))">Profile</button>
                 <button @click="$router.push('/')">Home</button>
@@ -154,7 +155,8 @@
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"
                     />
-                </graffiti-discover>
+                </graffiti-discover> 
+                -->
     
                 <section v-if="currentChatObject">
     
@@ -177,7 +179,6 @@
                         />
                         <input type="submit" value="Send" :disabled="!myMessage || isLoading" />
                     </form>
-        
     
                     <graffiti-discover
                         v-slot="{ objects: messageObjects }"
@@ -199,6 +200,7 @@
                         }"
                     >
                         <button @click="exitChat()">Exit Chat</button>
+                        <button @click="$router.push('/chat/' + currentChatObject.channel)"> Enter Via Router</button>
                         <ul>
                             <li v-for="message in messageObjects" :key="message.value.published">
                                 <div class="message-content">

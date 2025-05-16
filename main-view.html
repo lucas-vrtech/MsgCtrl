@@ -1,1 +1,123 @@
-<!-- <h2> MAIN VIEW AS TEMPLATE </h2> -->
+<div>
+    <div v-if="!$graffitiSession.value" class="login-prompt">
+        <h2>Welcome to MsgCtrl</h2>
+        <p>Please log in to access your messages</p>
+        <button @click="$graffiti.login()">Log In</button>
+    </div>
+
+    <div v-else>
+        <div class="user-header">
+            <h2>Welcome, {{ removeURLFromUsername($graffitiSession.value.actor) }}</h2>
+            <div class="user-actions">
+                <button @click="$router.push('/profile/' + removeURLFromUsername($graffitiSession.value.actor))">My Profile</button>
+            </div>
+        </div>
+        
+        <div class="create-channel">
+            <h3>Create New Channel</h3>
+            <form @submit.prevent="createChannel($graffitiSession.value)">
+                <input
+                    type="text"
+                    v-model="myNewChatName"
+                    placeholder="Enter channel name"
+                    class="channel-input"
+                />
+                <select v-model="myNewChatCategory" class="category-select">
+                    <option value="Critical ⚠️">Critical ⚠️</option>
+                    <option value="Inbox">Inbox</option>
+                    <option value="Ignore 😴">Ignore 😴</option>
+                    <option value="Handled 🤖">Handled 🤖</option>
+                </select>
+                <button type="submit" :disabled="!myNewChatName || isLoading">Create Channel</button>
+            </form>
+        </div>
+
+        <div v-if="isLoading" class="loading-indicator">
+            <img src="img/loader.svg" class="loader" alt="Loading" />
+        </div>
+
+        <div v-if="!categoriesLoaded" class="categories-loading">
+            Loading your category preferences...
+            <img src="img/loader.svg" class="loader" alt="Loading" />
+        </div>
+
+        <div v-else class="chat-categories">
+            <h3>Your Chat Channels</h3>
+            
+            <div class="category-section critical">
+                <h4>Critical ⚠️</h4>
+                <graffiti-discover
+                    v-slot="{ objects: groupChatObjects }"
+                    :channels="['designftw-lucas']"
+                    :schema="groupChatSchema"
+                >
+                    <chat-category 
+                        :chat-category-name="'Critical ⚠️'"
+                        :group-chat-objects="groupChatObjects.filter(obj => 
+                            categoriesLoaded && getChatCategory(obj?.value?.object?.channel) === 'Critical ⚠️')"
+                        :current-chat-object="currentChatObject"
+                        @enter-chat="enterChat"
+                        @change-category="(chat, category) => changeChatCategory(chat, category)"
+                    />
+                </graffiti-discover>
+            </div>
+            
+            <div class="category-section inbox">
+                <h4>Inbox</h4>
+                <graffiti-discover
+                    v-slot="{ objects: groupChatObjects }"
+                    :channels="['designftw-lucas']"
+                    :schema="groupChatSchema"
+                >
+                    <chat-category 
+                        :chat-category-name="'Inbox'"
+                        :group-chat-objects="groupChatObjects.filter(obj => 
+                            categoriesLoaded && getChatCategory(obj?.value?.object?.channel) === 'Inbox')"
+                        :current-chat-object="currentChatObject"
+                        @enter-chat="enterChat"
+                        @change-category="(chat, category) => changeChatCategory(chat, category)"
+                    />
+                </graffiti-discover>
+            </div>
+            
+            <div class="category-section ignore">
+                <h4>Ignore 😴</h4>
+                <graffiti-discover
+                    v-slot="{ objects: groupChatObjects }"
+                    :channels="['designftw-lucas']"
+                    :schema="groupChatSchema"
+                >
+                    <chat-category 
+                        class="muted-category"
+                        :chat-category-name="'Ignore 😴'"
+                        :group-chat-objects="groupChatObjects.filter(obj => 
+                            categoriesLoaded && getChatCategory(obj?.value?.object?.channel) === 'Ignore 😴')"
+                        :current-chat-object="currentChatObject"
+                        @enter-chat="enterChat"
+                        @change-category="(chat, category) => changeChatCategory(chat, category)"
+                    />
+                </graffiti-discover>
+            </div>
+            
+            <div class="category-section handled">
+                <h4>Handled 🤖</h4>
+                <graffiti-discover
+                    v-slot="{ objects: groupChatObjects }"
+                    :channels="['designftw-lucas']"
+                    :schema="groupChatSchema"
+                >
+                    <chat-category 
+                        class="muted-category"
+                        :chat-category-name="'Handled 🤖'"
+                        :group-chat-objects="groupChatObjects.filter(obj => 
+                            categoriesLoaded && getChatCategory(obj?.value?.object?.channel) === 'Handled 🤖')"
+                        :current-chat-object="currentChatObject"
+                        @enter-chat="enterChat"
+                        @change-category="(chat, category) => changeChatCategory(chat, category)"
+                    />
+                </graffiti-discover>
+            </div>
+        </div>
+    </div>
+</div>
+    

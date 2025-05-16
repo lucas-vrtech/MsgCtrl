@@ -1,1 +1,87 @@
 <h2> CHAT VIEW AS TEMPLATE </h2>
+
+<section>
+    <div v-if="isLoading && !currentChatObject">
+        <p>Loading chat data...</p>
+        <img src="img/loader.svg" class="loader" alt="Loading" />
+    </div>
+    
+    <div v-else-if="!currentChatObject">
+        <p>Could not load chat with ID: {{ chatId }}</p>
+        <button @click="$router.push('/')">Return to Home</button>
+    </div>
+    
+    <div v-else>
+        <h2>Messages</h2>
+        <p>
+            Current Chat: 
+            <span v-if="!renameChat">{{currentChatObject.name}}
+                <button @click="renameChat = true; newChatName = currentChatObject.name">Rename</button>
+            </span>
+            <span v-else>
+                <input type="text" v-model="newChatName" />
+                <button @click="updateChatName()">Update</button>
+            </span>
+        </p>
+        <form @submit.prevent="sendMessage($graffitiSession.value)">
+            <input
+                type="text"
+                v-model="myMessage"
+                placeholder="Message"
+            />
+            <input type="submit" value="Send" :disabled="!myMessage || isLoading" />
+        </form>
+
+        <graffiti-discover
+            v-slot="{ objects: messageObjects }"
+            :channels="[chatId]"
+            :schema="{
+                properties: {
+                    value: {
+                        required: ['content', 'published'],
+                        properties: {
+                            content: {
+                                type: 'string'
+                            },
+                            published: {
+                                type: 'number'
+                            }
+                        }
+                    }
+                }
+            }"
+        >
+            <button @click="$router.push('/')">Back to Home</button>
+            
+            <div v-if="messageObjects.length === 0" class="no-messages">
+                <p>No messages in this chat yet. Be the first to send one!</p>
+            </div>
+            
+            <ul v-else>
+                <li v-for="message in messageObjects" :key="message.value.published">
+                    <div class="message-content">
+                        <span v-if="currentlyEditingMessage === message">
+                            <input type="text" v-model="message.value.content" />
+                            <button @click="editMessage(message)">Update</button>
+                        </span>
+                        <span v-else>
+                            <button @click="$router.push('/profile/' + $root.removeURLFromUsername(message.value.actor))">
+                                {{ $root.removeURLFromUsername(message.value.actor) }}
+                            </button> - 
+                            {{ message.value.content }}
+                            <details v-if="$graffitiSession.value && $root.removeURLFromUsername(message.value.actor) === $root.removeURLFromUsername($graffitiSession.value.actor)">
+                                <summary>...</summary>
+                                <button @click="currentlyEditingMessage = message">Edit</button>
+                                <button @click="deleteMessage(message)">Delete</button>
+                            </details>
+                        </span>
+                    </div>
+                </li>
+            </ul>
+            
+            <div v-if="isLoading">
+                <img src="img/loader.svg" class="loader" alt="Loading" />
+            </div>
+        </graffiti-discover>
+    </div>
+</section>
