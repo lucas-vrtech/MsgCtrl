@@ -15,6 +15,10 @@ export async function MainView() {
         isLoading: false,
         categoryMappings: {},
         categoriesLoaded: false,
+        joinedChannels: {},
+        joinedChannelsLoaded: false,
+        publicChannelsToShow: [],
+        selectedPublicChannel: null,
         groupChatSchema
       };
     },
@@ -29,16 +33,29 @@ export async function MainView() {
         if (!this.$graffitiSession.value) return null;
         const username = this.removeURLFromUsername(this.$graffitiSession.value.actor);
         return `${username}-categories`;
+      },
+      
+      userJoinedChannel() {
+        if (!this.$graffitiSession.value) return null;
+        const username = this.removeURLFromUsername(this.$graffitiSession.value.actor);
+        return `${username}-joined-channels`;
       }
     },
     
     watch: {
       '$graffitiSession.value': async function(newSession) {
         if (newSession) {
-          await this.loadCategoryMappings();
+          await Promise.all([
+            this.loadCategoryMappings(),
+            this.loadJoinedChannels(),
+            this.loadPublicChannels()
+          ]);
         } else {
           this.categoryMappings = {};
           this.categoriesLoaded = false;
+          this.joinedChannels = {};
+          this.joinedChannelsLoaded = false;
+          this.publicChannelsToShow = [];
         }
       }
     },
@@ -78,7 +95,13 @@ export async function MainView() {
             );
           }
           
+          if (this.userJoinedChannel) {
+            await this.joinChannel(channelId, session);
+          }
+          
           this.myNewChatName = "";
+          
+          await this.loadPublicChannels();
         } catch (error) {
           console.error('Error creating channel:', error);
         } finally {
@@ -117,6 +140,195 @@ export async function MainView() {
         } finally {
           this.isLoading = false;
         }
+      },
+      
+      async loadJoinedChannels() {
+        if (!this.$graffitiSession.value || !this.userJoinedChannel) {
+          return;
+        }
+        
+        this.isLoading = true;
+        this.joinedChannels = {};
+        
+        try {
+          const joinedIterator = await this.$graffiti.discover(
+            [this.userJoinedChannel],
+            {
+              properties: {
+                value: {
+                  required: ['channelId', 'joined'],
+                  properties: {
+                    channelId: { type: 'string' },
+                    joined: { type: 'boolean' }
+                  }
+                }
+              }
+            }
+          );
+          
+          for await (const { object } of joinedIterator) {
+            const channelId = object.value.channelId;
+            const joined = object.value.joined;
+            
+            this.joinedChannels[channelId] = {
+              mappingObject: object,
+              joined: joined
+            };
+          }
+          
+          this.joinedChannelsLoaded = true;
+          console.log('Loaded joined channels:', this.joinedChannels);
+        } catch (error) {
+          console.error('Error loading joined channels:', error);
+        } finally {
+          this.isLoading = false;
+        }
+      },
+      
+      async loadPublicChannels() {
+        if (!this.$graffitiSession.value) {
+          return;
+        }
+        
+        this.isLoading = true;
+        
+        try {
+          const channelsIterator = await this.$graffiti.discover(
+            ['designftw-lucas'],
+            {
+              value: {
+                properties: {
+                  activity: { type: "string", const: "Create" },
+                  object: {
+                    type: { type: "string", const: "Group Chat" }
+                  }
+                }
+              }
+            }
+          );
+          
+          const channels = [];
+          for await (const { object } of channelsIterator) {
+            channels.push(object);
+          }
+          
+          this.publicChannelsToShow = channels;
+          console.log('Loaded public channels:', channels);
+        } catch (error) {
+          console.error('Error loading public channels:', error);
+        } finally {
+          this.isLoading = false;
+        }
+      },
+      
+      async joinChannel(channelId, session) {
+        if (!this.$graffitiSession.value || !this.userJoinedChannel) {
+          return;
+        }
+        
+        this.isLoading = true;
+        
+        try {
+          const existingJoined = this.joinedChannels[channelId];
+          
+          if (existingJoined) {
+            // Update existing mapping
+            await this.$graffiti.patch(
+              {
+                value: [
+                  {
+                    op: "replace",
+                    path: "/joined",
+                    value: true
+                  }
+                ]
+              },
+              existingJoined.mappingObject,
+              session
+            );
+            
+            existingJoined.joined = true;
+          } else {
+            // Create new mapping
+            const joinedObject = {
+              value: {
+                channelId: channelId,
+                joined: true
+              },
+              channels: [this.userJoinedChannel]
+            };
+            
+            const createdJoined = await this.$graffiti.put(joinedObject, session);
+            
+            this.joinedChannels[channelId] = {
+              mappingObject: createdJoined,
+              joined: true
+            };
+          }
+          
+          if (!this.categoryMappings[channelId]) {
+            await this.setChatCategory(channelId, "Inbox", session);
+          }
+          
+          console.log(`Joined channel: ${channelId}`);
+        } catch (error) {
+          console.error('Error joining channel:', error);
+        } finally {
+          this.isLoading = false;
+        }
+      },
+      
+      async leaveChannel(channelId, session) {
+        if (!this.$graffitiSession.value || !this.userJoinedChannel) {
+          return;
+        }
+        
+        this.isLoading = true;
+        
+        try {
+          const existingJoined = this.joinedChannels[channelId];
+          
+          if (existingJoined) {
+            // Update existing mapping
+            await this.$graffiti.patch(
+              {
+                value: [
+                  {
+                    op: "replace",
+                    path: "/joined",
+                    value: false
+                  }
+                ]
+              },
+              existingJoined.mappingObject,
+              session
+            );
+            
+            existingJoined.joined = false;
+            console.log(`Left channel: ${channelId}`);
+          }
+        } catch (error) {
+          console.error('Error leaving channel:', error);
+        } finally {
+          this.isLoading = false;
+        }
+      },
+      
+      hasJoinedChannel(channelId) {
+        if (!this.joinedChannelsLoaded) {
+          return false; 
+        }
+        
+        const joined = this.joinedChannels[channelId];
+        return joined ? joined.joined : false;
+      },
+      
+      async joinSelectedChannel() {
+        if (!this.selectedPublicChannel || !this.$graffitiSession.value) return;
+        
+        const channelId = this.selectedPublicChannel.value.object.channel;
+        await this.joinChannel(channelId, this.$graffitiSession.value);
+        this.selectedPublicChannel = null;
       },
       
       getChatCategory(chatChannel) {
@@ -199,7 +411,11 @@ export async function MainView() {
     
     created() {
       if (this.$graffitiSession.value) {
-        this.loadCategoryMappings();
+        Promise.all([
+          this.loadCategoryMappings(),
+          this.loadJoinedChannels(),
+          this.loadPublicChannels()
+        ]);
       }
     }
   };

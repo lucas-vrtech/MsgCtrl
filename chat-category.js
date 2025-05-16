@@ -16,7 +16,7 @@ export async function ChatCategory() {
                 default: "Chat Category"
             }
         },
-        emits: ['enter-chat', 'change-category'],
+        emits: ['enter-chat', 'change-category', 'leave-channel'],
         template: await fetch("./chat-category.html").then((r) => r.text()),
         methods: {
             handleDragStart(event, chat) {
@@ -28,9 +28,8 @@ export async function ChatCategory() {
             },
             handleDrop(event) {
                 const chat = JSON.parse(event.dataTransfer.getData('text/plain'));
-                if (chat?.value?.object?.category !== this.chatCategoryName) {
-                    this.$emit('change-category', chat, this.chatCategoryName);
-                }
+                // Always emit the change-category event, let the parent component handle it
+                this.$emit('change-category', chat, this.chatCategoryName);
             }
         }
     };

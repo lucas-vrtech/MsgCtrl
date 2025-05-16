@@ -15,12 +15,22 @@
         >
             <span class="grip-handle">⋮⋮⋮</span>
             <span class="chat-name">{{ chat?.value?.object?.name }}</span>
-            <button 
-                @click="$emit('enter-chat', chat)"
-                :disabled="currentChatObject && currentChatObject.channel === chat?.value?.object?.channel"
-            >
-                Enter
-            </button>
+            <div class="chat-actions">
+                <button 
+                    @click="$emit('enter-chat', chat)"
+                    :disabled="currentChatObject && currentChatObject.channel === chat?.value?.object?.channel"
+                    title="Enter Chat"
+                >
+                    Enter
+                </button>
+                <button 
+                    @click="$emit('leave-channel', chat)"
+                    class="leave-btn"
+                    title="Leave Channel"
+                >
+                    Leave
+                </button>
+            </div>
         </li>
     </ul>
 </div> 

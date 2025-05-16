@@ -13,39 +13,59 @@
             </div>
         </div>
         
-        <div class="create-channel">
-            <h3>Create New Channel</h3>
-            <form @submit.prevent="createChannel($graffitiSession.value)">
-                <input
-                    type="text"
-                    v-model="myNewChatName"
-                    placeholder="Enter channel name"
-                    class="channel-input"
-                />
-                <select v-model="myNewChatCategory" class="category-select">
-                    <option value="Critical ⚠️">Critical ⚠️</option>
-                    <option value="Inbox">Inbox</option>
-                    <option value="Ignore 😴">Ignore 😴</option>
-                    <option value="Handled 🤖">Handled 🤖</option>
-                </select>
-                <button type="submit" :disabled="!myNewChatName || isLoading">Create Channel</button>
-            </form>
+        <div class="control-panel">
+            <div class="create-channel">
+                <h3>Create New Channel</h3>
+                <form @submit.prevent="createChannel($graffitiSession.value)">
+                    <input
+                        type="text"
+                        v-model="myNewChatName"
+                        placeholder="Enter channel name"
+                        class="channel-input"
+                    />
+                    <select v-model="myNewChatCategory" class="category-select">
+                        <option value="Critical ⚠️">Critical ⚠️</option>
+                        <option value="Inbox">Inbox</option>
+                        <option value="Ignore 😴">Ignore 😴</option>
+                        <option value="Handled 🤖">Handled 🤖</option>
+                    </select>
+                    <button type="submit" :disabled="!myNewChatName || isLoading">Create Channel</button>
+                </form>
+            </div>
+            
+            <div class="join-channel">
+                <h3>Join Existing Channel</h3>
+                <div class="join-controls">
+                    <select v-model="selectedPublicChannel" class="channel-select">
+                        <option :value="null">Select a channel to join</option>
+                        <option v-for="channel in publicChannelsToShow" 
+                                :key="channel.value.object.channel" 
+                                :value="channel"
+                                :disabled="hasJoinedChannel(channel.value.object.channel)">
+                            {{ channel.value.object.name }} 
+                            {{ hasJoinedChannel(channel.value.object.channel) ? '(Joined)' : '' }}
+                        </option>
+                    </select>
+                    <button @click="joinSelectedChannel()" :disabled="!selectedPublicChannel || hasJoinedChannel(selectedPublicChannel?.value?.object?.channel)">
+                        Join Channel
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div v-if="isLoading" class="loading-indicator">
             <img src="img/loader.svg" class="loader" alt="Loading" />
         </div>
 
-        <div v-if="!categoriesLoaded" class="categories-loading">
-            Loading your category preferences...
+        <div v-if="!categoriesLoaded || !joinedChannelsLoaded" class="categories-loading">
+            Loading your preferences...
             <img src="img/loader.svg" class="loader" alt="Loading" />
         </div>
 
         <div v-else class="chat-categories">
-            <h3>Your Chat Channels</h3>
+            <h3>Your Joined Channels</h3>
             
             <div class="category-section critical">
-                
                 <graffiti-discover
                     v-slot="{ objects: groupChatObjects }"
                     :channels="['designftw-lucas']"
@@ -54,10 +74,13 @@
                     <chat-category 
                         :chat-category-name="'Critical ⚠️'"
                         :group-chat-objects="groupChatObjects.filter(obj => 
-                            categoriesLoaded && getChatCategory(obj?.value?.object?.channel) === 'Critical ⚠️')"
+                            categoriesLoaded && 
+                            hasJoinedChannel(obj?.value?.object?.channel) &&
+                            getChatCategory(obj?.value?.object?.channel) === 'Critical ⚠️')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"
+                        @leave-channel="(chat) => leaveChannel(chat.value.object.channel, $graffitiSession.value)"
                     />
                 </graffiti-discover>
             </div>
@@ -71,10 +94,13 @@
                     <chat-category 
                         :chat-category-name="'Inbox'"
                         :group-chat-objects="groupChatObjects.filter(obj => 
-                            categoriesLoaded && getChatCategory(obj?.value?.object?.channel) === 'Inbox')"
+                            categoriesLoaded && 
+                            hasJoinedChannel(obj?.value?.object?.channel) &&
+                            getChatCategory(obj?.value?.object?.channel) === 'Inbox')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"
+                        @leave-channel="(chat) => leaveChannel(chat.value.object.channel, $graffitiSession.value)"
                     />
                 </graffiti-discover>
             </div>
@@ -89,10 +115,13 @@
                         class="muted-category"
                         :chat-category-name="'Ignore 😴'"
                         :group-chat-objects="groupChatObjects.filter(obj => 
-                            categoriesLoaded && getChatCategory(obj?.value?.object?.channel) === 'Ignore 😴')"
+                            categoriesLoaded && 
+                            hasJoinedChannel(obj?.value?.object?.channel) &&
+                            getChatCategory(obj?.value?.object?.channel) === 'Ignore 😴')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"
+                        @leave-channel="(chat) => leaveChannel(chat.value.object.channel, $graffitiSession.value)"
                     />
                 </graffiti-discover>
             </div>
@@ -107,10 +136,13 @@
                         class="muted-category"
                         :chat-category-name="'Handled 🤖'"
                         :group-chat-objects="groupChatObjects.filter(obj => 
-                            categoriesLoaded && getChatCategory(obj?.value?.object?.channel) === 'Handled 🤖')"
+                            categoriesLoaded && 
+                            hasJoinedChannel(obj?.value?.object?.channel) &&
+                            getChatCategory(obj?.value?.object?.channel) === 'Handled 🤖')"
                         :current-chat-object="currentChatObject"
                         @enter-chat="enterChat"
                         @change-category="(chat, category) => changeChatCategory(chat, category)"
+                        @leave-channel="(chat) => leaveChannel(chat.value.object.channel, $graffitiSession.value)"
                     />
                 </graffiti-discover>
             </div>
